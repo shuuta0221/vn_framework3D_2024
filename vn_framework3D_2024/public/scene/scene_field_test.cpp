@@ -48,11 +48,17 @@ bool SceneFieldTest::initialize()
 
 	}
 
+	pCrown = new vnModel(L"data/model/", L"crown.vnm");
+	pCrown->setPositionY(2.8f);
+	pCrown->setScale(0.3f, 0.3f, 0.3f);
+	pCrown->setParent(pPlayer);
+
 	//シーンの基底クラスへ登録
 	for (int i = 0; i < FENCE_NUM; i++) {
 		registerObject(pFence[i]);
 	}
 	registerObject(pPlayer);
+	registerObject(pCrown);
 	registerObject(pNPC);
 	registerObject(pGround);
 	registerObject(pSky);
@@ -77,6 +83,7 @@ void SceneFieldTest::terminate()
 	//基底クラスの登録から削除
 	
 	deleteObject(pPlayer);
+	deleteObject(pCrown);
 	deleteObject(pShadow);
 	deleteObject(pNPC);
 	deleteObject(pDebugFan);
@@ -188,7 +195,7 @@ void SceneFieldTest::execute()
 	if (vnMouse::onR())
 	{
 		radius += vnMouse::getDY() / 100.0f;
-	}
+	}	
 	//マウス操作でカメラ回転
 	if (vnMouse::onL())
 	{
@@ -330,6 +337,13 @@ void SceneFieldTest::execute()
 	vnFont::print(20.0f, 100.0f, L"Player_RY : %.3f", pPlayer->getRotationY()*180.0f/3.141592f);
 	vnFont::print(20.0f, 120.0f, L"NPCとプレイヤーの距離 : %.3f", dist);
 	vnFont::print(20.0f, 140.0f, L"NPCとプレイヤーの角度 : %.3f", degree);
+
+	vnFont::print(20.0f, 160.0f, L"Crown Local Pos : %.3f, %.3f, %.3f", pCrown->getPositionX(), pCrown->getPositionY(), pCrown->getPositionZ());
+
+	XMVECTOR vv;
+	pCrown->getWorldPosition(&vv);
+
+	vnFont::print(20.0f, 180.0f, L"Crown Local Pos : %.3f, %.3f, %.3f", pCrown->getPositionX(), pCrown->getPositionY(), pCrown->getPositionZ());
 
 	vnScene::execute();
 }

@@ -141,6 +141,15 @@
     <ClInclude Include="public\scene\scene_ground_test.h">
       <Filter>public\scene</Filter>
     </ClInclude>
+    <ClInclude Include="public\scene\scene_collision_test2.h">
+      <Filter>public\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="public\scene\scene_pick_test.h">
+      <Filter>public\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="public\vn_collide.h">
+      <Filter>public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="vn_framework3D_2024.cpp">
@@ -239,6 +248,15 @@
     <ClCompile Include="public\scene\scene_ground_test.cpp">
       <Filter>public\scene</Filter>
     </ClCompile>
+    <ClCompile Include="public\scene\scene_collision_test2.cpp">
+      <Filter>public\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="public\scene\scene_pick_test.cpp">
+      <Filter>public\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="public\vn_collide.cpp">
+      <Filter>public</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="vn_framework3D_2024.rc">
@@ -284,5 +302,8 @@
     <FxCompile Include="shader\vs_3d_nolight.vsh">
       <Filter>shader</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="メモ.txt" />
   </ItemGroup>
 </Project>

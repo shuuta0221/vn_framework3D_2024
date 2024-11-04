@@ -1,0 +1,29 @@
+publicフォルダ
+
+vn_collide.h / cpp
+
+インターフェース
+(定義のみを持ったプログラム)
+
+基底クラス
+class iCharactor
+{
+	virual void move() = 0;
+	virual void attack() = 0;
+	virual void talk() = 0;
+}
+
+派生クラス
+class cEnemy : publick iCharactor
+{
+	void move();
+	void attack();
+	void talk();
+}
+
+class cPlayer : publick iCharactor
+{
+	void move();
+	void attack();
+	void talk();
+}

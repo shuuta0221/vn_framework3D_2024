@@ -11,6 +11,8 @@ class SceneFieldTest : public vnScene
 private:
 	vnModel* pFence[FENCE_NUM];
 
+	vnModel* pCrown;
+
 	vnModel* pPlayer;
 	vnModel* pShadow;
 

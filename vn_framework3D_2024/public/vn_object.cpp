@@ -161,6 +161,24 @@ void vnObject::render()
 {
 }
 
+//マトリクスの計算
+void vnObject::calculateLocalMatrix()
+{
+	XMMATRIX trans = XMMatrixTranslation(getPositionX(), getPositionY(), getPositionZ());
+	XMMATRIX rotate = XMMatrixRotationRollPitchYaw(getRotationX(), getRotationY(), getRotationZ());
+	XMMATRIX scale = XMMatrixScaling(getScaleX(), getScaleY(), getScaleZ());
+	Local = scale * rotate * trans;
+}
+
+void vnObject::calculateWorldMatrix()
+{
+	if (pParent == NULL) {
+		World = Local;
+	}
+	else {
+		World = Local * (*pParent->getWorld());
+	}
+}
 
 //移動値の設定
 void vnObject::setPosition(float x, float y, float z)
@@ -458,4 +476,14 @@ void vnObject::setTransparent(bool flag)
 bool vnObject::getTransparent()
 {
 	return transparent;
+}
+
+//階層構造の親の設定
+void vnObject::setParent(vnObject* p) {
+	pParent = p;
+}
+
+//階層構造の親の取得
+vnObject* vnObject::getParent(void) {
+	return pParent;
 }

@@ -93,6 +93,8 @@ using namespace DirectX;
 #include "../public/vn_model.h"
 #include "../public/vn_sprite.h"
 
+#include "../public/vn_collide.h"
+
 #include "../public/scene/vn_scene.h"
 #include "../public/scene/scene_table.h"
 

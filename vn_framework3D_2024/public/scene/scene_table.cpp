@@ -19,6 +19,8 @@ eSceneTable reserveScene = initialScene;
 WCHAR SceneName[(int)eSceneTable::SceneMax][32] =
 {
 	L"Boot",
+	L"Pick Test",
+	L"Collision Test2",
 	L"Ground Test",
 	L"Collision Test",
 	L"Field Test",
@@ -49,16 +51,18 @@ void switchScene()
 	vnScene *pScene=NULL;
 	switch(reserveScene)
 	{
-	case Boot:			pScene = new SceneBoot();			break;
-	case GroundTest:	pScene = new SceneGroundTest();		break;
-	case CollisionTest:	pScene = new SceneCollisionTest();	break;
-	case FieldTest:		pScene = new SceneFieldTest();		break;
-	case ModelTest:		pScene = new SceneModelTest();		break;
-	case CubeTest:		pScene = new SceneCubeTest();		break;
-	case SpriteTest:	pScene = new SceneSpriteTest();		break;
-	case JoystickTest:	pScene = new SceneJoystickTest();	break;
-	case SeTest:		pScene = new SceneSeTest();			break;
-	case FontTest:		pScene = new SceneFontTest();		break;
+	case Boot:				pScene = new SceneBoot();			break;
+	case PickTest:			pScene = new ScenePickTest();		break;
+	case CollisionTest2:	pScene = new SceneCollisionTest2(); break;
+	case GroundTest:		pScene = new SceneGroundTest();		break;
+	case CollisionTest:		pScene = new SceneCollisionTest();	break;
+	case FieldTest:			pScene = new SceneFieldTest();		break;
+	case ModelTest:			pScene = new SceneModelTest();		break;
+	case CubeTest:			pScene = new SceneCubeTest();		break;
+	case SpriteTest:		pScene = new SceneSpriteTest();		break;
+	case JoystickTest:		pScene = new SceneJoystickTest();	break;
+	case SeTest:			pScene = new SceneSeTest();			break;
+	case FontTest:			pScene = new SceneFontTest();		break;
 	}
 	
 	vnMainFrame::initializeScene(pScene);

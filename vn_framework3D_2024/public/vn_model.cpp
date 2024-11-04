@@ -331,13 +331,8 @@ void vnModel::execute()
 
 void vnModel::render()
 {
-	//ワールドマトリクスの計算
-	XMMATRIX trans = XMMatrixTranslation(getPositionX(), getPositionY(), getPositionZ());
-	XMMATRIX rotate = XMMatrixRotationRollPitchYaw(getRotationX(), getRotationY(), getRotationZ());
-	XMMATRIX scale = XMMatrixScaling(getScaleX(), getScaleY(), getScaleZ());
-	Local = scale * rotate * trans;
-
-	World = Local;
+	calculateLocalMatrix();
+	calculateWorldMatrix();
 
 	//ビューポート変換マトリクスの計算
 	XMMATRIX WVP = XMMatrixMultiply(World, *vnCamera::getScreen());

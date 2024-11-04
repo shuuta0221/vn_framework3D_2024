@@ -45,6 +45,13 @@ protected:
 	//半透明の有効/無効
 	bool transparent;
 
+	//階層構造の親
+	vnObject* pParent;
+
+	//マトリクスの計算
+	void calculateLocalMatrix();
+	void calculateWorldMatrix();
+
 
 	//静的共通データ
 	static D3D12_INPUT_ELEMENT_DESC inputElementDescs[];	//頂点要素
@@ -178,4 +185,9 @@ public:
 	//半透明の有効/無効の取得
 	bool getTransparent();
 
+	//階層構造の親の設定
+	void setParent(vnObject* p);
+
+	//階層構造の親の取得
+	vnObject* getParent(void);
 };
