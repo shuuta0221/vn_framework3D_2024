@@ -158,7 +158,7 @@ vnEmitter::vnEmitter()
 	}
 
 	//頂点バッファ
-	const int vnum = 4;
+	const int vnum = vnPARTICLE_MAX * 4;
 
 	const UINT vertexBufferSize = sizeof(vnVertex3D) * vnum;
 
@@ -195,7 +195,7 @@ vnEmitter::vnEmitter()
 	vertexBufferView.SizeInBytes = vertexBufferSize;
 
 	//インデックスバッファ
-	const int inum = 6;
+	const int inum = vnPARTICLE_MAX * 6;
 	{
 		const UINT indexBufferSize = sizeof(WORD) * inum;
 
@@ -234,6 +234,29 @@ vnEmitter::vnEmitter()
 		//インデックスデータの初期化
 		memset(idx, 0, sizeof(WORD) * inum);
 	}
+
+	//頂点データの初期化
+	for (int i = 0; i < vnPARTICLE_MAX; i++) {
+		for (int j = 0; j < 4; j++) {
+			vtx[i * 4 + j].x = 0.0f;
+			vtx[i * 4 + j].y = 0.0f;
+			vtx[i * 4 + j].z = 0.0f;
+			vtx[i * 4 + j].nx = 0.0f;
+			vtx[i * 4 + j].ny = 0.0f;
+			vtx[i * 4 + j].nz = 0.0f;
+			vtx[i * 4 + j].r = 1.0f;
+			vtx[i * 4 + j].g = 1.0f;
+			vtx[i * 4 + j].b = 1.0f;
+			vtx[i * 4 + j].a = 1.0f;
+		}
+		vtx[i * 4 + 0].u = 0.0f; vtx[i * 4 + 0].v = 0.0f;
+		vtx[i * 4 + 1].u = 1.0f; vtx[i * 4 + 1].v = 0.0f;
+		vtx[i * 4 + 2].u = 0.0f; vtx[i * 4 + 2].v = 1.0f;
+		vtx[i * 4 + 3].u = 1.0f; vtx[i * 4 + 3].v = 1.0f;
+	}
+
+	//描画されるインデックスの数
+	IndexNum = 0;
 
 	//マテリアル関連
 	Diffuse = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
@@ -285,9 +308,41 @@ void vnEmitter::execute()
 
 void vnEmitter::setVertexPosition()
 {
+	XMMATRIX mBillboard = *vnCamera::getView();
+	//移動成分をなくす(w成分は1)
+	mBillboard.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	//逆行列を計算(アフィン変換のみのため転覆行列は同じ)
+	mBillboard = XMMatrixTranspose(mBillboard);
+
 	//パーティクルのデバック描画
 	for (int i = 0; i < vnPARTICLE_MAX; i++) {
 		if (pParticle[i].Life <= 0.0f)continue;
+
+		XMVECTOR v[4];
+		float size = 0.5f;
+		v[0] = XMVectorSet(-size, +size, 0.0f, 0.0f);
+		v[1] = XMVectorSet(+size, +size, 0.0f, 0.0f);
+		v[2] = XMVectorSet(-size, -size, 0.0f, 0.0f);
+		v[3] = XMVectorSet(+size, -size, 0.0f, 0.0f);
+
+		/*ビルボードになるように計算*/
+		for (int j = 0; j < 4; j++) {
+			v[j] = XMVector3TransformNormal(v[j], mBillboard);
+			v[j] += pParticle[i].Pos;
+
+			vtx[j].x = XMVectorGetX(v[j]);
+			vtx[j].y = XMVectorGetY(v[j]);
+			vtx[j].z = XMVectorGetZ(v[j]);
+		}
+		//インデックスデータ
+		idx[0] = 0; idx[1] = 1; idx[2] = 2;
+		idx[3] = 1; idx[4] = 3; idx[5] = 2;
+		IndexNum = 6;
+
+		vnDebugDraw::Line(&v[0], &v[1]);
+		vnDebugDraw::Line(&v[1], &v[3]);
+		vnDebugDraw::Line(&v[3], &v[2]);
+		vnDebugDraw::Line(&v[2], &v[0]);
 
 		vnDebugDraw::Line(&Position, &pParticle[i].Pos);
 	}
@@ -296,7 +351,7 @@ void vnEmitter::setVertexPosition()
 void vnEmitter::render()
 {
 	setVertexPosition();
-#if 0
+#if 1
 	calculateLocalMatrix();
 	calculateWorldMatrix();
 
@@ -317,7 +372,30 @@ void vnEmitter::render()
 	XMStoreFloat4(&pConstBuffer->Ambient, Ambient);
 	XMStoreFloat4(&pConstBuffer->Specular, Specular);
 
-	vnDirect3D::getCommandList()->SetPipelineState(pPipelineState[renderFlag]);
+	if (lighting == true)
+	{	//ライティング有効
+		if (transparent == true)
+		{
+			//半透明有効
+			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha);
+		}
+		else
+		{
+			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState);
+		}
+	}
+	else
+	{	//ライティング無効
+		if (transparent == true)
+		{
+			//半透明有効
+			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL);
+		}
+		else
+		{
+			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL);
+		}
+	}
 
 	vnDirect3D::getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	vnDirect3D::getCommandList()->SetDescriptorHeaps(1, &basicDescHeap);
@@ -325,6 +403,6 @@ void vnEmitter::render()
 	vnDirect3D::getCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 	vnDirect3D::getCommandList()->IASetIndexBuffer(&indexBufferView);
 	
-	vnDirect3D::getCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	vnDirect3D::getCommandList()->DrawIndexedInstanced(IndexNum, 1, 0, 0, 0);
 #endif
 }

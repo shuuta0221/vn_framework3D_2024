@@ -23,6 +23,8 @@ private:
 	//パーティクル配列
 	vnParticle* pParticle;
 
+	//描画されるインデックスの数
+	int IndexNum;
 
 	//頂点データ
 	vnVertex3D* vtx;
