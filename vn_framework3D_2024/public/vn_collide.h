@@ -22,6 +22,12 @@ namespace vnCollide
 		void fromPoints(const XMVECTOR* p1, const XMVECTOR* p2);
 	};
 
+	//ü•ª
+	struct stSegment : public stLine
+	{
+		float Length;
+	};
+
 	//Œ`ó:•½–Ê
 	struct stPlane
 	{
@@ -80,4 +86,5 @@ namespace vnCollide
 	//[in] const stLine* line : ’¼ü‚Ìî•ñ
 	//[in] const stSphere* sphere : ‹…‚Ìî•ñ
 	int isCollide(XMVECTOR *hit, const stLine* line, const stSphere* sphere);
+
 }

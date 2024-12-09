@@ -13,7 +13,9 @@ bool SceneGroundTest::initialize()
 
 	//今のプログラムではpGroundのRotation,Position,Scaleを変更すると当たり判定がおかしくなる
 	//pGround = new vnModel(L"data/model/", L"noised_ground.vnm");
-	pGround = new vnModel(L"data/model/", L"noised_ground.vnm");
+	//pGround = new vnModel(L"data/model/", L"noised_ground.vnm");
+	//pGround = new vnModel(L"data/model/", L"overpass_000.vnm");
+	pGround = new vnModel(L"data/model/", L"overpass.vnm");
 	//pGround->setScale(2.0f, 2.0f, 2.0);
 	pSky = new vnModel(L"data/model/", L"skydome.vnm");
 	pSky->setLighting(false);	//ライティング無
@@ -32,6 +34,9 @@ bool SceneGroundTest::initialize()
 	theta = 0.0f; //-90.0f/180*3.141592f;	//平面角
 	phi = 30.0f/180*3.141592f;		//仰角
 
+	velocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	gravity = XMVectorSet(0.0f, -0.01f, 0.0f, 0.0f);
+	
 	return true;
 }
 
@@ -205,6 +210,11 @@ void SceneGroundTest::execute()
 
 	XMMATRIX world = *pGround->getWorld(); //ワールドマトリクス
 
+	//直線の情報作成
+	LinePos = *pPlayer->getPosition();
+	LinePos += XMVectorSet(0.0f, 0.5f, 0.0f, 0.0f);
+	LineDir = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
+
 	for (int i = 0; i < inum; i += 3) {
 		//三角形の頂点座標(ローカル座標)
 		XMVECTOR v1 = XMVectorSet(
@@ -231,10 +241,6 @@ void SceneGroundTest::execute()
 		v2 = XMVector3TransformCoord(v2, world);
 		v3 = XMVector3TransformCoord(v3, world);
 
-		//直線の情報作成
-		LinePos = *pPlayer->getPosition();
-		LineDir = XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
-
 		//平面の情報作成
 		XMVECTOR w1, w2;
 		w1 = v2 - v1;
@@ -257,6 +263,8 @@ void SceneGroundTest::execute()
 		XMVECTOR vD = XMVector3Dot(PlaneNormal, LinePos + LineDir);
 		d = XMVectorGetX(vD);
 		d += PlaneDistance;
+
+		if ((s / (s - d)) < 0.0f)continue;
 
 		XMVECTOR hit = LinePos + LineDir * (s / (s - d));
 
@@ -298,6 +306,8 @@ void SceneGroundTest::execute()
 			vnDebugDraw::Line(&v1, &v2, 0xff0000ff);
 			vnDebugDraw::Line(&v2, &v3, 0xff0000ff);
 			vnDebugDraw::Line(&v3, &v1, 0xff0000ff);
+
+			velocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 		}
 		else {
 			//三角形の辺をデバック描画
@@ -305,6 +315,16 @@ void SceneGroundTest::execute()
 			vnDebugDraw::Line(&v2, &v3, 0xffff0000);
 			vnDebugDraw::Line(&v3, &v1, 0xffff0000);
 		}
+	}
+
+
+	velocity += gravity;
+	pPlayer->addPosition(&velocity);
+
+	if (pPlayer->getPositionY() < -30.0f) {
+		//プレイヤーが一定以上落下すると原点に復帰させる
+		pPlayer->setPosition(0.0f, 0.0f, 0.0f);
+		velocity = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 

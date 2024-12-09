@@ -65,7 +65,7 @@ void vnScene::render()
 	for (int i = 0; i < vnOBJECT3D_MAX; i++)
 	{
 		if (pObject3D_Array[i] == NULL)continue;
-		if (pObject3D_Array[i]->isExecuteEnable() == false)continue;
+		if (pObject3D_Array[i]->isRenderEnable() == false)continue;
 		pObject3D_Array[i]->render();
 	}
 

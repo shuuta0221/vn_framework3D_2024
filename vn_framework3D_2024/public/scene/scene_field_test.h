@@ -24,6 +24,8 @@ private:
 	vnModel* pSky;
 	vnModel* pHouse;
 
+	vnBillboard* pBillboard;
+
 
 	//‹ÉÀ•W‚Ìî•ñ
 	float radius;	//”¼Œa

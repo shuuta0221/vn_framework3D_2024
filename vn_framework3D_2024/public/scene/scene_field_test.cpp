@@ -53,6 +53,11 @@ bool SceneFieldTest::initialize()
 	pCrown->setScale(0.3f, 0.3f, 0.3f);
 	pCrown->setParent(pPlayer);
 
+	pBillboard = new vnBillboard(1.0f, 1.0f, L"data/image/icon_exc.png");
+	pBillboard->setPosition(pNPC->getPosition());
+	pBillboard->setPositionY(3.5f);
+	pBillboard->setParent(pNPC);
+
 	//ƒV[ƒ“‚ÌŠî’êƒNƒ‰ƒX‚Ö“o˜^
 	for (int i = 0; i < FENCE_NUM; i++) {
 		registerObject(pFence[i]);
@@ -69,6 +74,7 @@ bool SceneFieldTest::initialize()
 	registerObject(pShadow);
 	registerObject(pDebugFan);
 	registerObject(pNPCShadow);
+	registerObject(pBillboard);
 
 	radius = 10.0f;	//”¼Œa
 	theta = 0.0f; //-90.0f/180*3.141592f;	//•½–ÊŠp
@@ -91,6 +97,7 @@ void SceneFieldTest::terminate()
 	deleteObject(pGround);
 	deleteObject(pSky);
 	deleteObject(pHouse);
+	deleteObject(pBillboard);
 
 	for (int i = 0; i < FENCE_NUM; i++) {
 		deleteObject(pFence[i]);
@@ -318,6 +325,11 @@ void SceneFieldTest::execute()
 		pNPCShadow->setPositionY(0.01f);
 		pDebugFan->setPosition(pNPC->getPosition());
 		pDebugFan->setRotationY(pNPC->getRotationY());
+
+		pBillboard->setRenderEnable(true);
+	}
+	else {
+		pBillboard->setRenderEnable(false);
 	}
 
 

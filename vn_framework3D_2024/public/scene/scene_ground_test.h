@@ -10,6 +10,10 @@ private:
 	vnModel* pGround;
 	vnModel* pSky;
 
+	//d—Íî•ñ
+	XMVECTOR velocity;
+	XMVECTOR gravity;
+
 	//’¼ü‚Ìî•ñ
 	XMVECTOR LinePos;
 	XMVECTOR LineDir;

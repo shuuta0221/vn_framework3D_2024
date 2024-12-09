@@ -10,6 +10,7 @@
 enum eSceneTable
 {
 	Boot,
+	EffectTest,
 	PickTest,
 	CollisionTest2,
 	GroundTest,
@@ -26,6 +27,7 @@ enum eSceneTable
 
 //シーンクラス定義ファイル
 #include "vn_scene.h"
+#include "scene_effect_test.h"
 #include "scene_boot.h"
 #include "scene_pick_test.h"
 #include "scene_collision_test2.h"

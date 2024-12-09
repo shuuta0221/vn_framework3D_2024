@@ -118,7 +118,7 @@ void ScenePickTest::execute()
 
 		//マウス座標(スクリーン座標)->ビューポート座標
 		float viewport_x = (float)vnMouse::getX() / (float)vnMainFrame::screenWidth * 2.0f - 1.0f;
-		float viewport_y = (float)vnMouse::getY() / (float)vnMainFrame::screenHeight * 2.0f + 1.0f;
+		float viewport_y = (float)vnMouse::getY() / (float)vnMainFrame::screenHeight * -2.0f + 1.0f;
 
 		vnFont::print(10.0f, 30.0f, L"ビューポート座標(%d,%d)", viewport_x, viewport_y);
 
@@ -161,7 +161,7 @@ void ScenePickTest::execute()
 			//pSphere[i]->setPosition(&closestPoint);	//デバッグモデル
 
 			//球の中心から直線へ垂直に降りる線のデバッグ描画
-			vnDebugDraw::Line(&SphereCenter, &closestPoint, 0xffffffff);
+			//vnDebugDraw::Line(&SphereCenter, &closestPoint, 0xffffffff);
 
 			//最近傍距離の計算と表示
 			XMVECTOR vDist = SphereCenter - closestPoint;

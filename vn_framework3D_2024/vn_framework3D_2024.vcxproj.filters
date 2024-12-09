@@ -150,6 +150,15 @@
     <ClInclude Include="public\vn_collide.h">
       <Filter>public</Filter>
     </ClInclude>
+    <ClInclude Include="public\vn_billboard.h">
+      <Filter>public\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="public\vn_effect.h">
+      <Filter>public\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="public\scene\scene_effect_test.h">
+      <Filter>public\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="vn_framework3D_2024.cpp">
@@ -256,6 +265,15 @@
     </ClCompile>
     <ClCompile Include="public\vn_collide.cpp">
       <Filter>public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\vn_billboard.cpp">
+      <Filter>public\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="public\vn_effect.cpp">
+      <Filter>public\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="public\scene\scene_effect_test.cpp">
+      <Filter>public\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

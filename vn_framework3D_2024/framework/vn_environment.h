@@ -95,6 +95,10 @@ using namespace DirectX;
 
 #include "../public/vn_collide.h"
 
+#include "../public/vn_billboard.h"
+
+#include "../public/vn_effect.h"
+
 #include "../public/scene/vn_scene.h"
 #include "../public/scene/scene_table.h"
 
