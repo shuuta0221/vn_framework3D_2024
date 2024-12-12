@@ -26,6 +26,9 @@ private:
 	//描画されるインデックスの数
 	int IndexNum;
 
+	//描画されるパーティクルの数
+	int rederParticleNum;
+
 	//頂点データ
 	vnVertex3D* vtx;
 

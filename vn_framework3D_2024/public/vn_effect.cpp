@@ -14,6 +14,8 @@ vnEmitter::vnEmitter()
 	//パーティクル配列のメモリ確保
 	pParticle = new vnParticle[vnPARTICLE_MAX];
 
+	rederParticleNum = 0;
+
 	for (int i = 0; i < vnPARTICLE_MAX; i++) {
 		pParticle[i].Life = 0.0f;
 		pParticle[i].Pos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
@@ -308,6 +310,9 @@ void vnEmitter::execute()
 
 void vnEmitter::setVertexPosition()
 {
+	IndexNum = 0;
+	rederParticleNum = 0;
+
 	XMMATRIX mBillboard = *vnCamera::getView();
 	//移動成分をなくす(w成分は1)
 	mBillboard.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
@@ -320,29 +325,50 @@ void vnEmitter::setVertexPosition()
 
 		XMVECTOR v[4];
 		float size = 0.5f;
-		v[0] = XMVectorSet(-size, +size, 0.0f, 0.0f);
-		v[1] = XMVectorSet(+size, +size, 0.0f, 0.0f);
-		v[2] = XMVectorSet(-size, -size, 0.0f, 0.0f);
-		v[3] = XMVectorSet(+size, -size, 0.0f, 0.0f);
+		v[0]		= XMVectorSet(-size, +size, 0.0f, 0.0f);
+		v[1]	= XMVectorSet(+size, +size, 0.0f, 0.0f);
+		v[2]	= XMVectorSet(-size, -size, 0.0f, 0.0f);
+		v[3]	= XMVectorSet(+size, -size, 0.0f, 0.0f);
 
 		/*ビルボードになるように計算*/
 		for (int j = 0; j < 4; j++) {
 			v[j] = XMVector3TransformNormal(v[j], mBillboard);
 			v[j] += pParticle[i].Pos;
 
-			vtx[j].x = XMVectorGetX(v[j]);
-			vtx[j].y = XMVectorGetY(v[j]);
-			vtx[j].z = XMVectorGetZ(v[j]);
+			vtx[rederParticleNum * 4 + j].x = XMVectorGetX(v[j]);
+			vtx[rederParticleNum * 4 + j].y = XMVectorGetY(v[j]);
+			vtx[rederParticleNum * 4 + j].z = XMVectorGetZ(v[j]);
+			//↑iと描画されるパーティクルの数(何番目)は一致しない
+			/*
+			1個目のパーティクル : 0,1,2,3
+			2個目のパーティクル : 4,5,6,7
+			3個目のパーティクル : 8,9,10,11
+			*/
 		}
-		//インデックスデータ
-		idx[0] = 0; idx[1] = 1; idx[2] = 2;
-		idx[3] = 1; idx[4] = 3; idx[5] = 2;
-		IndexNum = 6;
 
-		vnDebugDraw::Line(&v[0], &v[1]);
-		vnDebugDraw::Line(&v[1], &v[3]);
-		vnDebugDraw::Line(&v[3], &v[2]);
-		vnDebugDraw::Line(&v[2], &v[0]);
+		//インデックスデータ
+		idx[IndexNum++] = 0 + i * 4;
+		idx[IndexNum++] = 1 + i * 4;
+		idx[IndexNum++] = 2 + i * 4;
+
+		idx[IndexNum++] = 1 + i * 4;
+		idx[IndexNum++] = 3 + i * 4;
+		idx[IndexNum++]	= 2 + i * 4;
+		//idx[0] = 0; idx[1] = 1; idx[2] = 2;
+		//idx[3] = 1; idx[4] = 3; idx[5] = 2;
+		//IndexNum = 6;
+		/*
+		1個目のパーティクル : (0,1,2)	(1,3,2)		-> IndexNum:6
+		2個目のパーティクル : (4,5,6)	(5,7,6)		-> IndexNum:12
+		3個目のパーティクル : (8,9,10)	(9,11,10)	-> IndexNum:18
+		*/
+
+		rederParticleNum++;
+
+		vnDebugDraw::Line(&v[0], &v[1], 0xffff0000);
+		vnDebugDraw::Line(&v[1], &v[3], 0xffff0000);
+		vnDebugDraw::Line(&v[3], &v[2], 0xffff0000);
+		vnDebugDraw::Line(&v[2], &v[0], 0xffff0000);
 
 		vnDebugDraw::Line(&Position, &pParticle[i].Pos);
 	}
