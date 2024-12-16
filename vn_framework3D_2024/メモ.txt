@@ -27,3 +27,22 @@ class cPlayer : publick iCharactor
 	void attack();
 	void talk();
 }
+・ライティング
+	psoDesc.VS.pShaderBytecode = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getCode();
+	psoDesc.VS.BytecodeLength = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getLength();
+	psoDesc.PS.pShaderBytecode = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getCode();
+	psoDesc.PS.BytecodeLength = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getLength();
+
+・半透明
+	psoDesc.VS.pShaderBytecode = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getCode();
+	psoDesc.VS.BytecodeLength = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getLength();
+	psoDesc.PS.pShaderBytecode = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getCode();
+	psoDesc.PS.BytecodeLength = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getLength();
+
+・深度書き込み
+
+
+D3D12_DEPTH_WRITE_MASK_ALL
+
+D3D12_DEPTH_WRITE_MASK_ZERO : 深度書き込みをしない
+

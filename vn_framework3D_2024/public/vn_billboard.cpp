@@ -224,6 +224,7 @@ vnBillboard::vnBillboard(float width, float height, const WCHAR* texture_file, f
 
 	setLighting(false);
 
+	setZWrite(true);
 }
 
 vnBillboard::~vnBillboard()
@@ -263,28 +264,58 @@ void vnBillboard::render()
 	XMStoreFloat4(&pConstBuffer->Specular, Specular);
 	
 	
-	if (lighting == true)
-	{	//ライティング有効
-		if (transparent == true)
-		{
-			//半透明有効
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha);
+	if (zWrite == true)
+	{	//深度書き込み有効
+		if (lighting == true)
+		{	//ライティング有効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState);
+			}
 		}
 		else
-		{
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState);
+		{	//ライティング無効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL);
+			}
 		}
 	}
-	else
-	{	//ライティング無効
-		if (transparent == true)
-		{
-			//半透明有効
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL);
+	else 
+	{	//深度書き込み無効
+		if (lighting == true)
+		{	//ライティング有効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_ZOff);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_ZOff);
+			}
 		}
 		else
-		{
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL);
+		{	//ライティング無効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL_ZOff);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL_ZOff);
+			}
 		}
 	}
 	

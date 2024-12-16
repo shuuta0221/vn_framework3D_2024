@@ -10,10 +10,14 @@
 class vnParticle
 {
 public:
-	float Life;	//寿命
+	float Life;			//寿命
+	float StartLife;	//初期値
 
-	XMVECTOR Pos;	//位置
-	XMVECTOR Vel;	//速度
+	XMVECTOR Pos;		//位置
+	XMVECTOR Vel;		//速度
+
+	XMVECTOR Col;		//色
+	float	Size;		//サイズ
 };
 
 //エミッタークラス

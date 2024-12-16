@@ -45,6 +45,9 @@ protected:
 	//半透明の有効/無効
 	bool transparent;
 
+	//深度書き込みの有効/無効
+	bool zWrite;
+
 	//階層構造の親
 	vnObject* pParent;
 
@@ -54,11 +57,18 @@ protected:
 
 
 	//静的共通データ
-	static D3D12_INPUT_ELEMENT_DESC inputElementDescs[];	//頂点要素
-	static ID3D12PipelineState		*pPipelineState;		//パイプラインステート
-	static ID3D12PipelineState		*pPipelineState_NL;		//パイプラインステート(ライティング無し)
-	static ID3D12PipelineState      *pPipelineState_Alpha;		//半透明
-	static ID3D12PipelineState		*pPipelineState_Alpha_NL;	//半透明(ライティング無し)
+	static D3D12_INPUT_ELEMENT_DESC	inputElementDescs[];			//頂点要素
+	static ID3D12PipelineState		*pPipelineState;				//パイプラインステート
+	static ID3D12PipelineState		*pPipelineState_NL;				//パイプラインステート(ライティング無し)
+
+	static ID3D12PipelineState		*pPipelineState_Alpha;			//半透明
+	static ID3D12PipelineState		*pPipelineState_Alpha_NL;		//半透明(ライティング無し)
+
+	static ID3D12PipelineState*		pPipelineState_ZOff;			//深度あり
+	static ID3D12PipelineState*		pPipelineState_NL_ZOff;			//深度なし(ライティング無し)
+
+	static ID3D12PipelineState*		pPipelineState_Alpha_ZOff;		//深度あり(半透明)
+	static ID3D12PipelineState*		pPipelineState_Alpha_NL_ZOff;	//深度あり(半透明(ライティング無し))
 
 	//コンスタントバッファ構造体
 	struct stConstantBuffer
@@ -179,11 +189,17 @@ public:
 	//ライティングの有効/無効の取得
 	bool getLighting();
 
-	//半透明の有効 / 無効の設定
+	//半透明の有効/無効の設定
 	void setTransparent(bool flag);
 
 	//半透明の有効/無効の取得
 	bool getTransparent();
+
+	//深度書き込みの有効/無効の設定
+	void setZWrite(bool flag);
+
+	//深度書き込みの有効/無効の取得
+	bool getZWrite();
 
 	//階層構造の親の設定
 	void setParent(vnObject* p);

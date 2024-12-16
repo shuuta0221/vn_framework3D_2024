@@ -23,6 +23,12 @@ ID3D12PipelineState* vnObject::pPipelineState_NL = NULL;
 ID3D12PipelineState* vnObject::pPipelineState_Alpha = NULL;
 ID3D12PipelineState* vnObject::pPipelineState_Alpha_NL = NULL;
 
+ID3D12PipelineState* vnObject::pPipelineState_ZOff = NULL;
+ID3D12PipelineState* vnObject::pPipelineState_NL_ZOff = NULL;
+
+ID3D12PipelineState* vnObject::pPipelineState_Alpha_ZOff = NULL;
+ID3D12PipelineState* vnObject::pPipelineState_Alpha_NL_ZOff = NULL;
+
 
 
 //静的共通データ初期化
@@ -117,6 +123,36 @@ bool vnObject::initializeCommon()
 	hr = vnDirect3D::getDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pPipelineState_Alpha_NL));
 	pPipelineState_Alpha_NL->SetName(L"vnObject::pPipelineState_Alpha_NL");
 
+	//深度書き込み無効
+	psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+
+	//ライティング有効&不透明
+	hr = vnDirect3D::getDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pPipelineState_ZOff));
+	pPipelineState->SetName(L"vnObject::pPipelineState_ZOff");
+
+	//ライティング有効&半透明
+	hr = vnDirect3D::getDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pPipelineState_Alpha_ZOff));
+	pPipelineState_Alpha->SetName(L"vnObject::pPipelineState_Alpha_ZOff");
+
+	//ライティング無効&不透明
+	psoDesc.VS.pShaderBytecode = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getCode();
+	psoDesc.VS.BytecodeLength = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getLength();
+	psoDesc.PS.pShaderBytecode = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getCode();
+	psoDesc.PS.BytecodeLength = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getLength();
+
+	hr = vnDirect3D::getDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pPipelineState_NL_ZOff));
+	pPipelineState_NL->SetName(L"vnObject::pPipelineState_NL_ZOff");
+
+	//ライティング無効&半透明
+	psoDesc.VS.pShaderBytecode = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getCode();
+	psoDesc.VS.BytecodeLength = vnShader::getVShader(vnShader::eVertexShader::VS_3D_Nolight)->getLength();
+	psoDesc.PS.pShaderBytecode = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getCode();
+	psoDesc.PS.BytecodeLength = vnShader::getPShader(vnShader::ePixelShader::PS_3D_Nolight)->getLength();
+
+	hr = vnDirect3D::getDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pPipelineState_Alpha_NL_ZOff));
+	pPipelineState_Alpha_NL->SetName(L"vnObject::pPipelineState_Alpha_NL_ZOff");
+
+
 	return true;
 }
 
@@ -127,6 +163,10 @@ void vnObject::terminateCommon()
 	SAFE_RELEASE(pPipelineState_NL);
 	SAFE_RELEASE(pPipelineState_Alpha);
 	SAFE_RELEASE(pPipelineState_Alpha_NL);
+	SAFE_RELEASE(pPipelineState_ZOff);
+	SAFE_RELEASE(pPipelineState_NL_ZOff);
+	SAFE_RELEASE(pPipelineState_Alpha_ZOff);
+	SAFE_RELEASE(pPipelineState_Alpha_NL_ZOff);
 }
 
 
@@ -147,6 +187,10 @@ vnObject::vnObject()
 	lighting = true;
 
 	transparent = false;
+
+	zWrite = true;
+
+	pParent = NULL;
 }
 
 vnObject::~vnObject()
@@ -476,6 +520,17 @@ void vnObject::setTransparent(bool flag)
 bool vnObject::getTransparent()
 {
 	return transparent;
+}
+
+//半透明の有効/無効の設定
+void vnObject::setZWrite(bool flag)
+{
+	zWrite = flag;
+}
+//半透明の有効/無効の取得
+bool vnObject::getZWrite()
+{
+	return zWrite;
 }
 
 //階層構造の親の設定

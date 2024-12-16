@@ -18,8 +18,11 @@ vnEmitter::vnEmitter()
 
 	for (int i = 0; i < vnPARTICLE_MAX; i++) {
 		pParticle[i].Life = 0.0f;
+		pParticle[i].StartLife = 0.0f;
 		pParticle[i].Pos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 		pParticle[i].Vel = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		pParticle[i].Col = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
+		pParticle[i].Size = 1.0f;
 	}
 
 	//描画情報の初期化
@@ -32,7 +35,7 @@ vnEmitter::vnEmitter()
 	basicDescHeap = NULL;
 
 	//テクスチャの拡張子
-	WCHAR texture_file[] = L"";//L"data/image/particle/particle001.png";
+	WCHAR texture_file[] = L"data/image/particle/particle001.png";//L"data/image/particle/particle001.png";
 	const WCHAR* ext = wcsrchr(texture_file, L'.');
 
 	//テクスチャの読み込み
@@ -268,6 +271,8 @@ vnEmitter::vnEmitter()
 	setTransparent(true);
 
 	setLighting(false);
+
+	setZWrite(false);
 }
 
 vnEmitter::~vnEmitter()
@@ -287,7 +292,8 @@ void vnEmitter::execute()
 	for (int i = 0; i < vnPARTICLE_MAX; i++) {
 		if (pParticle[i].Life > 0.0f)continue;
 
-		pParticle[i].Life = 60.0f;
+		pParticle[i].StartLife = 60.0f;
+		pParticle[i].Life = pParticle[i].StartLife;
 		pParticle[i].Pos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 		pParticle[i].Vel = XMVectorSet(
 			(float)(rand() % 2000) / 1000.0f - 1.0f,	//-1~+1
@@ -295,6 +301,16 @@ void vnEmitter::execute()
 			(float)(rand() % 2000) / 1000.0f - 1.0f,	//-1~+1
 			0.0f);
 		pParticle[i].Vel *= 0.1f;
+
+		pParticle[i].Col = XMVectorSet(
+			(float)(rand() % 1000) / 1000.0f,
+			(float)(rand() % 1000) / 1000.0f,
+			(float)(rand() % 1000) / 1000.0f,
+			(float)(rand() % 1000) / 1000.0f
+		);
+
+		pParticle[i].Size = (float)(rand() % 1000) / 1000.0f;
+
 		break;
 	}
 
@@ -323,9 +339,11 @@ void vnEmitter::setVertexPosition()
 	for (int i = 0; i < vnPARTICLE_MAX; i++) {
 		if (pParticle[i].Life <= 0.0f)continue;
 
+		float overLifetime = pParticle[i].Life / pParticle[i].StartLife;
+
 		XMVECTOR v[4];
-		float size = 0.5f;
-		v[0]		= XMVectorSet(-size, +size, 0.0f, 0.0f);
+		float size = pParticle[i].Size * overLifetime;
+		v[0]	= XMVectorSet(-size, +size, 0.0f, 0.0f);
 		v[1]	= XMVectorSet(+size, +size, 0.0f, 0.0f);
 		v[2]	= XMVectorSet(-size, -size, 0.0f, 0.0f);
 		v[3]	= XMVectorSet(+size, -size, 0.0f, 0.0f);
@@ -338,12 +356,12 @@ void vnEmitter::setVertexPosition()
 			vtx[rederParticleNum * 4 + j].x = XMVectorGetX(v[j]);
 			vtx[rederParticleNum * 4 + j].y = XMVectorGetY(v[j]);
 			vtx[rederParticleNum * 4 + j].z = XMVectorGetZ(v[j]);
-			//↑iと描画されるパーティクルの数(何番目)は一致しない
-			/*
-			1個目のパーティクル : 0,1,2,3
-			2個目のパーティクル : 4,5,6,7
-			3個目のパーティクル : 8,9,10,11
-			*/
+			
+			//カラーをポリゴンに設定
+			vtx[rederParticleNum * 4 + j].r = XMVectorGetX(pParticle[i].Col);
+			vtx[rederParticleNum * 4 + j].g = XMVectorGetY(pParticle[i].Col);
+			vtx[rederParticleNum * 4 + j].b = XMVectorGetZ(pParticle[i].Col);
+			vtx[rederParticleNum * 4 + j].a = XMVectorGetW(pParticle[i].Col) * overLifetime;
 		}
 
 		//インデックスデータ
@@ -354,23 +372,16 @@ void vnEmitter::setVertexPosition()
 		idx[IndexNum++] = 1 + i * 4;
 		idx[IndexNum++] = 3 + i * 4;
 		idx[IndexNum++]	= 2 + i * 4;
-		//idx[0] = 0; idx[1] = 1; idx[2] = 2;
-		//idx[3] = 1; idx[4] = 3; idx[5] = 2;
-		//IndexNum = 6;
-		/*
-		1個目のパーティクル : (0,1,2)	(1,3,2)		-> IndexNum:6
-		2個目のパーティクル : (4,5,6)	(5,7,6)		-> IndexNum:12
-		3個目のパーティクル : (8,9,10)	(9,11,10)	-> IndexNum:18
-		*/
 
 		rederParticleNum++;
 
-		vnDebugDraw::Line(&v[0], &v[1], 0xffff0000);
-		vnDebugDraw::Line(&v[1], &v[3], 0xffff0000);
-		vnDebugDraw::Line(&v[3], &v[2], 0xffff0000);
-		vnDebugDraw::Line(&v[2], &v[0], 0xffff0000);
+		//デバック用(枠のライン)
+		//vnDebugDraw::Line(&v[0], &v[1], 0xffff0000);
+		//vnDebugDraw::Line(&v[1], &v[3], 0xffff0000);
+		//vnDebugDraw::Line(&v[3], &v[2], 0xffff0000);
+		//vnDebugDraw::Line(&v[2], &v[0], 0xffff0000);
 
-		vnDebugDraw::Line(&Position, &pParticle[i].Pos);
+		//vnDebugDraw::Line(&Position, &pParticle[i].Pos);
 	}
 }
 
@@ -398,28 +409,58 @@ void vnEmitter::render()
 	XMStoreFloat4(&pConstBuffer->Ambient, Ambient);
 	XMStoreFloat4(&pConstBuffer->Specular, Specular);
 
-	if (lighting == true)
-	{	//ライティング有効
-		if (transparent == true)
-		{
-			//半透明有効
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha);
+	if (zWrite == true)
+	{	//深度書き込み有効
+		if (lighting == true)
+		{	//ライティング有効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState);
+			}
 		}
 		else
-		{
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState);
+		{	//ライティング無効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL);
+			}
 		}
 	}
 	else
-	{	//ライティング無効
-		if (transparent == true)
-		{
-			//半透明有効
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL);
+	{	//深度書き込み無効
+		if (lighting == true)
+		{	//ライティング有効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_ZOff);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_ZOff);
+			}
 		}
 		else
-		{
-			vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL);
+		{	//ライティング無効
+			if (transparent == true)
+			{
+				//半透明有効
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL_ZOff);
+			}
+			else
+			{
+				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL_ZOff);
+			}
 		}
 	}
 

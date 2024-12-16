@@ -354,28 +354,58 @@ void vnModel::render()
 		XMStoreFloat4(&pMaterials[mid].pConstBuffer->Ambient, *getAmbient(mid));
 		XMStoreFloat4(&pMaterials[mid].pConstBuffer->Specular, *getSpecular(mid));
 
-		if (lighting == true)
-		{	//ライティング有効
-			if (transparent == true)
-			{
-				//半透明有効
-				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha);
+		if (zWrite == true)
+		{	//深度書き込み有効
+			if (lighting == true)
+			{	//ライティング有効
+				if (transparent == true)
+				{
+					//半透明有効
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha);
+				}
+				else
+				{
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState);
+				}
 			}
-			else 
-			{
-				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState);
+			else
+			{	//ライティング無効
+				if (transparent == true)
+				{
+					//半透明有効
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL);
+				}
+				else
+				{
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL);
+				}
 			}
 		}
 		else
-		{	//ライティング無効
-			if (transparent == true) 
-			{
-				//半透明有効
-				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL);
+		{	//深度書き込み無効
+			if (lighting == true)
+			{	//ライティング有効
+				if (transparent == true)
+				{
+					//半透明有効
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_ZOff);
+				}
+				else
+				{
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_ZOff);
+				}
 			}
 			else
-			{
-				vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL);
+			{	//ライティング無効
+				if (transparent == true)
+				{
+					//半透明有効
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_Alpha_NL_ZOff);
+				}
+				else
+				{
+					vnDirect3D::getCommandList()->SetPipelineState(pPipelineState_NL_ZOff);
+				}
 			}
 		}
 		
